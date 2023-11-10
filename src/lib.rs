@@ -33,6 +33,10 @@ impl SBusPacketParser {
         }
     }
 
+    pub fn clear(&mut self) {
+        self.buffer.clear();
+    }
+
     /// Push single `u8` byte into buffer.
     #[inline(always)]
     pub fn push_byte(&mut self, byte: u8) {

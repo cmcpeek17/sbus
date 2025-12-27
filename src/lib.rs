@@ -2,8 +2,8 @@
 
 use arraydeque::{ArrayDeque, Wrapping};
 
-#[cfg(feature = "embedded-hal")]
-use embedded_hal::serial::Read;
+#[cfg(feature = "embedded-io")]
+use embedded_io::Read;
 
 // Important bytes for correctnes checks
 const FLAG_MASK: u8 = 0b11110000;
@@ -51,17 +51,18 @@ impl SBusPacketParser {
     }
 
     /// Exhaustively reads the bytes from uart device implenting
-    /// the `embedded_hal::serial::Read<u8>` trait.
-    #[cfg(feature = "embedded-hal")]
-    pub fn read_serial<U : Read<u8>>(&mut self, uart : & mut U) {
-        while let Ok(byte) = uart.read() {
-            self.push_byte(byte);
+    /// the `embedded_io::serial::Read<u8>` trait.
+    #[cfg(feature = "embedded-io")]
+    pub fn read_serial<U : Read>(&mut self, uart : & mut U) {
+        let mut byte: [u8;1] = [0u8];
+        while let Ok(_) = uart.read(&mut byte) {
+            self.push_byte(byte[0]);
         }
     }
 
     /// Equivalent to consequtively calling `read_serial()` and `try_parse()`.
-    #[cfg(feature = "embedded-hal")]
-    pub fn read_serial_try_parse<U : Read<u8>>
+    #[cfg(feature = "embedded-io")]
+    pub fn read_serial_try_parse<U : Read>
     (&mut self, uart : & mut U) -> Option<SBusPacket> {
         self.read_serial(uart);
         self.try_parse()
